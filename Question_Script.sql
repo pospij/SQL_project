@@ -1,5 +1,6 @@
-/*1. otazka
- *   Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
+/*
+ * 1. otazka
+ *  Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
  */
 
 CREATE OR REPLACE VIEW v_up_down AS
@@ -33,8 +34,9 @@ GROUP BY name_of_industry;
 
 
 
-/* 2. otazka
- * Kolik je možné si koupit litrů mléka a kilogramů chleba za první a poslední srovnatelné období v dostupných datech cen a mezd?
+/* 
+ * 2. otazka
+ *  Kolik je možné si koupit litrů mléka a kilogramů chleba za první a poslední srovnatelné období v dostupných datech cen a mezd?
  */ 
 
 SELECT
@@ -56,4 +58,47 @@ SELECT
 FROM t_Jan_Pospisil_project_SQL_primary_final
 WHERE product_code IN ('111301','114201')
 AND `year` IN ('2006','2018')
-GROUP BY `year`,product_code 
+GROUP BY `year`,product_code ;
+
+/*
+ * 3. otazka 
+ * Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční nárůst)?
+ */
+WITH help_tab AS ( 
+	SELECT 
+		`year` ,
+		product_name ,
+		value ,
+		LEAD(value) OVER (ORDER BY product_name, `year`) AS 'value2'
+FROM t_Jan_Pospisil_project_SQL_primary_final
+GROUP BY product_name, `year` )
+SELECT
+	product_name ,
+	SUM(ROUND(((value2 - value) / value ) *100 , 2)) AS 'sum_growth_percent' 
+FROM help_tab
+WHERE year != 2018
+GROUP BY product_name 
+ORDER BY sum_growth_percent ASC
+;
+
+/*
+ * 4. otazka 
+ * Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?
+ */
+WITH help_tab AS ( 
+	SELECT 
+		`year` ,
+		product_name ,
+		value ,
+		LEAD(value) OVER (ORDER BY product_name, `year`) AS 'value2'
+FROM t_Jan_Pospisil_project_SQL_primary_final
+GROUP BY product_name, `year` )
+SELECT
+	(`year` + 1) AS 'year' ,
+	ROUND(AVG(ROUND(((value2 - value) / value ) *100 , 2)),2) AS 'growth_percent' 
+FROM help_tab
+WHERE`year` != 2018
+GROUP BY (`year` + 1)
+
+
+
