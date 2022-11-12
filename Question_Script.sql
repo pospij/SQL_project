@@ -85,6 +85,7 @@ ORDER BY sum_growth_percent ASC
  * 4. otazka 
  * Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?
  */
+CREATE OR REPLACE VIEW v_food_growth AS 
 WITH help_tab AS ( 
 	SELECT 
 		`year` ,
@@ -99,6 +100,31 @@ SELECT
 FROM help_tab
 WHERE`year` != 2018
 GROUP BY (`year` + 1)
+;
+SELECT *
+FROM v_food_growth ;
+/*
+ * 5. otazka
+ * Má výška HDP vliv na změny ve mzdách a cenách potravin?
+ *  Neboli, pokud HDP vzroste výrazněji v jednom roce,
+ *  projeví se to na cenách potravin či mzdách ve stejném nebo násdujícím roce výraznějším růstem?
+ */
 
-
-
+WITH growth_tab AS (
+	SELECT 
+		`year`,
+		GDP ,
+		LEAD(GDP) OVER (ORDER BY `year`) AS 'GDP_nxt_row' 
+	FROM t_Jan_Pospisil_project_SQL_primary_final
+	GROUP BY `year`)
+SELECT 
+	(gt.`year`+ 1) AS 'year',
+	AVG(prim.salary),
+	vfg.growth_percent , 
+	ROUND(((GDP_nxt_row - gt.GDP) / gt.GDP) * 100 , 2) AS GDP_growth
+FROM growth_tab gt
+JOIN v_food_growth vfg 
+ON (gt.`year`+ 1) = vfg.`year`
+JOIN t_Jan_Pospisil_project_SQL_primary_final prim
+ON (gt.`year`+ 1) = prim.`year` 
+GROUP BY (`year`+ 1)
