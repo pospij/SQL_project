@@ -45,9 +45,20 @@ ON v_tab_1.payroll_year = v_tab_2.`YEAR(cp.date_from)`
 JOIN v_cze_gdp
 ON payroll_year = v_cze_gdp.year
 WHERE payroll_year BETWEEN 2006 AND 2018
-ORDER BY payroll_year ;
+ORDER BY payroll_year
+;
 
-#DROP TABLE t_Jan_Pospisil_project_SQL_primary_final ;
 
-#SELECT *
-#FROM t_Jan_Pospisil_project_SQL_primary_final ;
+
+CREATE TABLE IF NOT EXISTS t_Jan_Pospisil_project_SQL_secondary_final AS
+SELECT ec.`year` ,
+		cn.country ,
+		ec.GDP,
+		ec.population,
+		ec.gini 
+FROM economies ec
+JOIN countries cn
+ON ec.country = cn.country 
+WHERE cn.continent LIKE 'Europe' AND ec.`year` BETWEEN 2006 AND 2018
+ORDER BY country , `year` 
+;
