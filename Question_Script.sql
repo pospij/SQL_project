@@ -29,7 +29,8 @@ SELECT
 		ELSE 'V průběhu let jsou mzdy stejné'
 	END AS 'result_between_2006/2018'
 FROM v_up_down 
-GROUP BY name_of_industry;
+GROUP BY name_of_industry
+;
 
 
 
@@ -50,7 +51,7 @@ GROUP BY `year`,product_code
 
 SELECT
 	`year`,
-	ROUND(AVG(salary)) AS 'AVG salary',
+	ROUND(AVG(salary)) AS 'avg_salary',
 	CASE 
 		WHEN product_code = 111301 THEN CONCAT(ROUND(AVG(salary)/ value), ' kg chleba za prumerny plat')
 		WHEN product_code = 114201 THEN CONCAT(ROUND(AVG(salary)/ value), ' l mleka za prumerny plat')
@@ -58,7 +59,8 @@ SELECT
 FROM t_Jan_Pospisil_project_SQL_primary_final
 WHERE product_code IN ('111301','114201')
 AND `year` IN ('2006','2018')
-GROUP BY `year`,product_code ;
+GROUP BY `year`,product_code 
+;
 
 /*
  * 3. otazka 
@@ -96,13 +98,14 @@ FROM t_Jan_Pospisil_project_SQL_primary_final
 GROUP BY product_name, `year` )
 SELECT
 	(`year` + 1) AS 'year' ,
-	ROUND(AVG(ROUND(((value2 - value) / value ) *100 , 2)),2) AS 'growth_percent' 
+	ROUND(AVG(ROUND(((value2 - value) / value ) *100 , 2)),2) AS 'food_growth_percent' 
 FROM help_tab
 WHERE`year` != 2018
 GROUP BY (`year` + 1)
 ;
 SELECT *
-FROM v_food_growth ;
+FROM v_food_growth 
+;
 /*
  * 5. otazka
  * Má výška HDP vliv na změny ve mzdách a cenách potravin?
@@ -119,12 +122,13 @@ WITH growth_tab AS (
 	GROUP BY `year`)
 SELECT 
 	(gt.`year`+ 1) AS 'year',
-	AVG(prim.salary),
+	AVG(prim.salary) AS 'avg_salary',
 	vfg.growth_percent , 
-	ROUND(((GDP_nxt_row - gt.GDP) / gt.GDP) * 100 , 2) AS GDP_growth
+	ROUND(((GDP_nxt_row - gt.GDP) / gt.GDP) * 100 , 2) AS 'GDP_growth'
 FROM growth_tab gt
 JOIN v_food_growth vfg 
 ON (gt.`year`+ 1) = vfg.`year`
 JOIN t_Jan_Pospisil_project_SQL_primary_final prim
 ON (gt.`year`+ 1) = prim.`year` 
 GROUP BY (`year`+ 1)
+;
