@@ -1,7 +1,18 @@
 # SQL_project
 ## Engeto data acedemy project 1
 
------- 
+-----
+
+#####  Projekt se zabývá životní úrovní občanů a dostupností základních potravin.
+
+----
+
+### Jak začít
+Jako první se musí spustit skript "project_table.sql", pro vytvoření tabulek obsahující potřebná data. \
+Nasledně pomocí skriptu "Question_Script.sql" a spuštění jednotlivých dotazů, můžeme odpovědet, \
+na jednotlivé výzkumné otázky.
+
+-----
 
 #### project_table.sql
 
@@ -33,7 +44,7 @@ Výzkumné otázky a odpovědi
 
 
 4. Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?
-- Dle dostupných dat v roce 2007 byl růst cen větší než 10% a to 12,86%.
+- Dle dostupných dat žádném roce nebyl růst cen potravin výrazně vyšší než růst mezd.
 
 
 
