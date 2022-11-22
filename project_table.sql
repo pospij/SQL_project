@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW v_cze_payroll AS (
 SELECT cp.payroll_year,
-	ind.name ,
+	ind.name,
 	cp.value
 	FROM czechia_payroll AS cp
 JOIN czechia_payroll_industry_branch AS ind
@@ -16,10 +16,10 @@ SELECT
 	cpc.price_unit,
 	cp.value,
 	YEAR(cp.date_from) 
-FROM czechia_price cp
-JOIN czechia_price_category cpc 
+FROM czechia_price AS cp
+JOIN czechia_price_category AS cpc 
 ON cp.category_code  = cpc.code
-GROUP BY cp.category_code,YEAR(cp.date_from));
+GROUP BY cp.category_code, YEAR(cp.date_from));
 
 CREATE OR REPLACE VIEW v_cze_GDP AS 
 SELECT GDP ,
@@ -50,13 +50,13 @@ ORDER BY payroll_year;
 
 
 CREATE TABLE IF NOT EXISTS t_Jan_Pospisil_project_SQL_secondary_final AS
-SELECT ec.`year` ,
-		cn.country ,
+SELECT ec.`year`,
+		cn.country,
 		ec.GDP,
 		ec.population,
 		ec.gini 
-FROM economies ec
-JOIN countries cn
+FROM economies AS ec
+JOIN countries AS cn
 ON ec.country = cn.country 
 WHERE cn.continent LIKE 'Europe' AND ec.`year` BETWEEN 2006 AND 2018
 ORDER BY country , `year`;
