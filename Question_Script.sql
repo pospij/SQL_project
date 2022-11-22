@@ -9,7 +9,7 @@ SELECT
 	salary,
 	ROUND((((LEAD(salary) OVER (PARTITION BY name_of_industry ORDER BY name_of_industry, year)) - salary) / salary) * 100, 2) AS 'perecent_salary_growth'
 FROM t_Jan_Pospisil_project_SQL_primary_final 
-GROUP BY  name_of_industry,`year`;
+GROUP BY name_of_industry, `year`;
 
 
 
@@ -30,9 +30,9 @@ SELECT
 FROM t_Jan_Pospisil_project_SQL_primary_final prim
 JOIN czechia_price_category cpc
 ON prim.product_code = cpc.code 
-WHERE product_code IN('111301','114201')
-AND `year` IN ('2006','2018')
-GROUP BY `year`,product_code;
+WHERE product_code IN('111301', '114201')
+AND `year` IN ('2006', '2018')
+GROUP BY `year`, product_code;
 
 
 /*
@@ -86,8 +86,7 @@ GROUP BY `year`;
 SELECT
 	fg.`year`,
 	fg.food_growth_percent,
-	sg.growth AS 'salary_growth_percent',
-	ABS(ABS(fg.food_growth_percent)- sg.growth) AS 'difference'
+	sg.growth AS 'salary_growth_percent'
 FROM v_food_growth fg
 LEFT JOIN v_salary_growth sg
 ON fg.`year` = sg.`year`;
