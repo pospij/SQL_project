@@ -24,13 +24,13 @@ SELECT
 	`year`,
 	ROUND(AVG(salary)) AS 'avg_salary',
 	CASE 
-		WHEN cpc.name LIKE '%Chléb%' THEN CONCAT(ROUND(AVG(salary)/ value), ' kg chleba za prumerny plat')
-		WHEN cpc.name LIKE '%Mléko%' THEN CONCAT(ROUND(AVG(salary)/ value), ' l mleka za prumerny plat')
+		WHEN prim.product_code = 111301 THEN CONCAT(ROUND(AVG(salary)/ value), ' kg chleba za prumerny plat')
+		WHEN prim.product_code = 114201 THEN CONCAT(ROUND(AVG(salary)/ value), ' l mleka za prumerny plat')
 	END AS 'result'
 FROM t_Jan_Pospisil_project_SQL_primary_final prim
 JOIN czechia_price_category cpc
 ON prim.product_code = cpc.code 
-WHERE product_code IN('111301', '114201')
+WHERE product_code IN('111301', '114201') /*111301 is Chleb, 114201 is Mleko */
 AND `year` IN ('2006', '2018')
 GROUP BY `year`, product_code;
 
@@ -44,7 +44,7 @@ WITH help_tab AS (
 		`year`,
 		product_name,
 		value,
-		LEAD(value) OVER(ORDER BY product_name, `year`) AS 'value2'
+		LEAD(value) OVER(PARTITION BY product_name ORDER BY product_name, `year`) AS 'value2'
 FROM t_Jan_Pospisil_project_SQL_primary_final
 GROUP BY product_name, `year` )
 SELECT
@@ -65,13 +65,13 @@ WITH help_tab AS (
 	SELECT
 		`year`,
 		product_name,
-		value,
-		LEAD(value) OVER (ORDER BY product_name, `year`) AS 'value2'
+		avg_price ,
+		LEAD(avg_price) OVER (ORDER BY product_name, `year`) AS 'value2'
 FROM t_Jan_Pospisil_project_SQL_primary_final
 GROUP BY product_name, `year` )
 SELECT
 	(`year` + 1) AS 'year',
-	ROUND(AVG(ROUND(((value2 - value) / value ) *100 , 2)),2) AS 'food_growth_percent' 
+	ROUND(((value2 - avg_price) / avg_price  ) *100 , 2) AS 'food_growth_percent' 
 FROM help_tab
 WHERE`year` != 2018
 GROUP BY (`year` + 1);
@@ -79,7 +79,7 @@ GROUP BY (`year` + 1);
 CREATE OR REPLACE VIEW v_salary_growth AS
 SELECT 
 	`year`,
-	ROUND(((LEAD(AVG(salary)) OVER (ORDER BY `year`) - AVG(salary)) / AVG(salary)) * 100,2)AS 'growth'
+	ROUND(((LEAD(avg_salary) OVER (ORDER BY `year`) - avg_salary) / avg_salary) * 100,2)AS 'growth'
 FROM t_Jan_Pospisil_project_SQL_primary_final
 GROUP BY `year`;
 

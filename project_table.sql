@@ -1,7 +1,8 @@
 CREATE OR REPLACE VIEW v_cze_payroll AS (
 SELECT cp.payroll_year,
 	ind.name,
-	cp.value
+	cp.value,
+	AVG(cp.value) AS 'avg_salary'
 	FROM czechia_payroll AS cp
 JOIN czechia_payroll_industry_branch AS ind
 	ON cp.industry_branch_code = ind.code
@@ -15,7 +16,8 @@ SELECT
 	cpc.price_value,
 	cpc.price_unit,
 	cp.value,
-	YEAR(cp.date_from) 
+	AVG(cp.value) AS 'avg_price', 
+	YEAR(cp.date_from) AS 'year'
 FROM czechia_price AS cp
 JOIN czechia_price_category AS cpc 
 ON cp.category_code  = cpc.code
@@ -31,19 +33,21 @@ SELECT * FROM v_cze_gdp;
 
 CREATE TABLE IF NOT EXISTS t_Jan_Pospisil_project_SQL_primary_final AS
 SELECT
-	v_cze_payroll.payroll_year AS 'year',
-	v_cze_payroll.name  AS 'name_of_industry',
-	v_cze_payroll.value  AS 'salary',
-	v_cze_food.name AS 'product_name',
-	CONCAT(v_cze_food.price_value, v_cze_food.price_unit) AS 'unit',
-	v_cze_food.value,
-	v_cze_food.category_code AS 'product_code',
-	v_cze_gdp.GDP 
-FROM v_cze_payroll
-LEFT JOIN v_cze_food 
-ON v_cze_payroll.payroll_year = v_cze_food.`YEAR(cp.date_from)` 
-JOIN v_cze_gdp
-ON payroll_year = v_cze_gdp.year
+	vcp.payroll_year AS 'year',
+	vcp.name  AS 'name_of_industry',
+	vcp.value  AS 'salary',
+	vcf.name AS 'product_name',
+	CONCAT(vcf.price_value, vcf.price_unit) AS 'unit',
+	vcf.value,
+	vcf.category_code AS 'product_code',
+	vgdp.GDP,
+	vcf.avg_price,
+	vcp.avg_salary 
+FROM v_cze_payroll AS vcp
+LEFT JOIN v_cze_food AS vcf
+ON vcp.payroll_year = vcf.year 
+JOIN v_cze_gdp AS vgdp
+ON payroll_year = vgdp.year
 WHERE payroll_year BETWEEN 2006 AND 2018
 ORDER BY payroll_year;
 
